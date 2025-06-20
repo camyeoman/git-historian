@@ -10,4 +10,4 @@
    2. or Edit the `./saved-projects.yml` file directly, it is just a list of filepaths
 4. Now simply run `$ nu {path-to-this-repo}/cli.nu logs` and navigate forward/backwards using left and right arrow keys
 
-<img width="939" alt="image" src="https://github.com/user-attachments/assets/873b7bf6-bc5d-495b-9ad9-5d62037036fc"/>
+<img width="830" alt="image" src="https://github.com/user-attachments/assets/b7badd06-6187-4bc0-b9cc-a89c74d90ebd" />
