@@ -36,6 +36,45 @@ export def --env if-then-else [predicate: closure, if_true: closure, if_false]: 
   }
 }
 
+export def dedent [
+  --tab-spaces (-t): int = 2,
+  --join-char (-j) = "\n"
+] {
+  def get-spaces []: string -> int {
+    let s = $in
+    let res = match ($s) {
+      " " => 1
+      "\t" => $tab_spaces
+      _ => 0
+    }
+
+    return $res
+  }
+
+  export def get-indent []: string -> int {
+    split chars
+    | take while { get-spaces | $in > 0 }
+    | each { get-spaces }
+    | append 0
+    | math sum
+  }
+
+  let input = $in
+  let lines = $input | lines
+  let min_indent = (
+    $lines
+    | where { $in !~ '^\s*$' }
+    | each { get-indent }
+    | if-then-else {is-empty} {0} {math min}
+  )
+
+  $lines
+    | str substring ($min_indent)..
+    | str trim --right
+    | where { ($join_char == "\n") or ($in !~ '^\s*$') }
+    | str join $join_char
+}
+
 export def truncate-string [
   --max-width (-w): number
   --ratio (-r): number = 1

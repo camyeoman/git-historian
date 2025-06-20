@@ -340,14 +340,23 @@ def fmt-logs-for-display [
 ]: table -> any {
   # handle case where no commits are found
   if ($in | is-empty) {
+    let week_no = $edate | get-week-num-for-month
     return ([
       "\n\n\n"
       ([
-        $"(ansi red)0 commits(ansi reset) found for user"
-        $"(ansi purple)($author | default '???')(ansi reset)"
-        $"in date range ($sdate | format-calendar-date) to"
-        $"($edate | format-calendar-date)"
-      ] | str join " " | fill -a c -w (term size | get columns))
+        ($"
+        (ansi red)0 commits(ansi reset) found for user
+        (ansi purple)($author | default '???')(ansi reset)
+        " | dedent -j " ")
+
+        "\n",
+
+        ($"
+        For date range ($sdate | format-calendar-date) to ($edate | format-calendar-date)
+        (ansi purple)\(Week ($week_no.no) of ($edate | format date '%B')\)(ansi reset)
+        " | dedent -j " "),
+
+      ] | each { fill -a c -w (term size | get columns) } | str join "\n")
       "\n\n\n"
     ] | str join "")
   }
@@ -376,7 +385,6 @@ def fmt-logs-for-display [
     | get log-string
     | str join "\n\n"
     | "\n" + $in + "\n"
-    # | str length
   )
 }
 
@@ -451,6 +459,9 @@ def 'main logs-for date' [
   | fmt-logs-for-display $date $date $author
 }
 
+# Starts an interactive view of worklogs by week
+#
+# This gets all the worklogs over all saved projects automatically.
 def 'main logs' [
   day?: int
   month?: int
@@ -486,13 +497,13 @@ def 'main logs' [
         { type: key, code: h } => (-1),
         { type: key, code: a } => (-1),
 
-        { type: key, code: left, modifiers: ["keymodifiers(shift)"] } => "last-month",
-        { type: key, code: H } => "last-month",
-        { type: key, code: A } => "last-month",
+        # { type: key, code: left, modifiers: ["keymodifiers(shift)"] } => "last-month",
+        # { type: key, code: H } => "last-month",
+        # { type: key, code: A } => "last-month",
 
-        { type: key, code: right, modifiers: ["keymodifiers(shift)"] } => "next-month",
-        { type: key, code: L } => "next-month",
-        { type: key, code: D } => "next-month",
+        # { type: key, code: right, modifiers: ["keymodifiers(shift)"] } => "next-month",
+        # { type: key, code: L } => "next-month",
+        # { type: key, code: D } => "next-month",
 
         { type: key, code: right } => (+1) ,
         { type: key, code: l } => (+1) ,
@@ -515,7 +526,6 @@ def 'main logs' [
     let cached = get-from-cache $cache_path $key
     if ($cached != null) { return $cached }
 
-
     let output = get-projects $projects_file --all true
     | par-each { cd $in; list-git-logs-in-range $sdate $edate $author }
     | flatten
@@ -525,12 +535,30 @@ def 'main logs' [
     return $output
   }
 
+  def show-controls-string [] {
+    $"
+    (ansi blue)q(ansi reset) (ansi purple)\(quit\)(ansi reset)
+    (ansi blue)left(ansi reset) (ansi purple)\(-1 week\)(ansi reset)
+    (ansi blue)right(ansi reset) (ansi purple)\(+1 week\)(ansi reset)
+    "
+    | dedent -j " | "
+    | $"(ansi green)KEY-BINDINGS(ansi reset) > ($in)"
+    | fill --width (term size).columns -a c
+    | "\n" + $in + "\n"
+  }
+
+  def move-up [rows: int] {
+    $"\e[($rows)A"
+  }
+
   try {
     mut ref_date = $initial_date
     while (true) {
       # get and output the current result
       clear
-      get-result $ref_date $author | print $in
+      get-result $ref_date $author
+      | (show-controls-string) + $in
+      | print $in
 
       # cache the next/prev results
       get-result ($ref_date | offset-date -1) $author
