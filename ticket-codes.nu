@@ -220,15 +220,23 @@ const TICKET_COLORS = [
   (ansi xterm_lightslateblue)
 ]
 
-export def get-ticket-color [] {
+export def get-ticket-color []: any -> string {
   if ($in == null) { return (ansi red) }
-  let color_index = ($in
+  let ticket = $in
+  let color_index = if ($ticket =~ '^[A-Z]{3,}-\d+$') {
+    $ticket
+    | split row '-'
+    | last
+    | into int
+    | $in mod ($TICKET_COLORS | length | $in - 1)
+  } else {
+    $ticket
     | hash md5 -b
     | chunks 2
     | each { into int }
     | math sum
     | $in mod ($TICKET_COLORS | length | $in - 1)
-  )
+  }
 
   $TICKET_COLORS | get $color_index
 }
