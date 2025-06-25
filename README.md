@@ -1,13 +1,42 @@
+## Git Historian
+
+This cli tool scrapes your git commit history to print out a pretty summary of what you did, and when. Useful for filling in timesheets. See example
+output of the cli tool below.
+
+<div align="center">
+   <img
+      width="830"
+      alt="image"
+      src="https://github.com/user-attachments/assets/b7badd06-6187-4bc0-b9cc-a89c74d90ebd"
+   />
+</div>
+
 ## Quickstart Guide
 
-1. Install nushell, simplest way is just to run `npm i -g nushell`, or see [installation documentation here](https://www.nushell.sh/book/installation.html)
-2. Clone the git repository. I would recommend creating a ~/.scripts folder and putting it there, but where you put it is up to you.
-3. Next you need to save the paths to all the relevant local git repositories that you want to track. To do this, either
-   1. Use cli commands as follows
-       1. Open a terminal or navigate to the relevant git repository
-       2. Run `$ nu {path-to-this-repo}/cli.nu project save`
-       3. Repeat these steps for all relevant local git repositories.
-   2. or Edit the `./saved-projects.yml` file directly, it is just a list of filepaths
-4. Now simply run `$ nu {path-to-this-repo}/cli.nu logs` and navigate forward/backwards using left and right arrow keys
+### Installation
 
-<img width="830" alt="image" src="https://github.com/user-attachments/assets/b7badd06-6187-4bc0-b9cc-a89c74d90ebd" />
+1. Install nushell, if you have nodejs installed the simplest way is just to run `npm i -g nushell`, or see [official documentation](https://www.nushell.sh/book/installation.html)
+2. Then run the following commands
+   ```
+   $ nu
+   $ mkdir ~/.scripts
+   $ cd ~/.scripts
+   $ git clone https://github.com/camyeoman/git-historian.git
+   ```
+
+### Setup
+
+You can run the tool using `$ nu ~/.scripts/git-historian/cli.nu logs` in your project's directory, but if you want it to parse the git
+history of multiple local git repositories at once, i.e you work on multiple projects, then you will need to save the filepaths to these
+as 'saved projects'. To do this,
+
+1. Open a terminal or navigate to the relevant git repository, e.g `cd ~/Code/stratex/`
+2. Run `$ nu ~/.scripts/git-historian//cli.nu project save`
+
+Or you can simply run `$ nu ~/.scripts/git-historian/cli.nu project save ~/Code/stratex ~/Code/vportal`.
+
+### Running the script
+
+Now simply run `$ nu ~/.scripts/git-historian/cli.nu logs` for the interactive mode. use the `--help` flag to get more documentation.
+
+
