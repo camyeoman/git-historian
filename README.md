@@ -38,7 +38,7 @@ history of multiple local git repositories at once, i.e you work on multiple pro
 as 'saved projects'. To do this,
 
 1. Open a terminal or navigate to the relevant git repository, e.g `cd ~/Code/stratex/`
-2. Run `$ nu ~/.scripts/git-historian//cli.nu project save`
+2. Run `$ nu ~/.scripts/git-historian/cli.nu project save`
 
 Or you can simply run `$ nu ~/.scripts/git-historian/cli.nu project save ~/Code/stratex ~/Code/vportal`.
 
