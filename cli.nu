@@ -209,6 +209,20 @@ def repeat_str [s: string, n: int] {
   seq 0 $n | each { $s } | str join ""
 }
 
+def indent-lines [indent: int, char: string = " "] {
+  def apply-indent [prefix: string]: string -> string {
+    $in
+    | split row "\n"
+    | each { $prefix + $in }
+    | str join "\n"
+  }
+
+  let indent_str = seq 1 $indent | each { $char } | str join ""
+  $in
+  | if-then {is-list-like} { each { apply-indent $indent_str } }
+  | if-then {is-string} { apply-indent $indent_str }
+}
+
 def collect-section [
   header: string
   indent: int
@@ -221,7 +235,7 @@ def collect-section [
   let header_str = if ($header | is-empty) { "" } else { $header + "\n\n" }
   $header_str + (
     $in
-    | each { split row "\n" | each { $indent_str + $in } | str join "\n" }
+    | indent-lines $indent
     | str join ($padding_str)
   ) | str trim
 }
@@ -342,7 +356,7 @@ def fmt-logs-for-display [
   if ($in | is-empty) {
     let week_no = $edate | get-week-num-for-month
     return ([
-      "\n\n\n"
+      "\n\n"
       ([
         ($"
         (ansi red)0 commits(ansi reset) found for user
@@ -366,23 +380,24 @@ def fmt-logs-for-display [
   return ($in
     # define strings for output of command
     | insert day-date { $in.date | start-of-day }
-    | aggregate-logs -p 1 $.day-date { get-date-header } { |i, items| get-log-output $i $items }
+    | aggregate-logs -p 1 -i 2 $.day-date { get-date-header } { |i, items| get-log-output $i $items }
 
     # if just grouping by week, don't split up weeks for months
     | if-then {$group_weeks and not $split_week_on_month} {
       insert week-date { $in.date | start-of-week }
-      | aggregate-logs -p 2 $.week-date { get-full-week-header } { get log-string }
+      | aggregate-logs -p 2 -i 2 $.week-date { get-full-week-header } { get log-string }
     }
 
     # optionally group by week
     | if-then {$group_weeks and $split_week_on_month} {
       insert week-date { $in.date | start-of-week }
       | insert month-no { $in.date | get-month }
-      | aggregate-logs -p 2 $.week-date { get-month-week-header } { get log-string } { group-by week-date month-no --to-table }
+      | aggregate-logs -p 2 -i 2 $.week-date { get-month-week-header } { get log-string } { group-by week-date month-no --to-table }
     }
 
     # combine all the string into the final output
     | get log-string
+    | indent-lines 2
     | str join "\n\n"
     | "\n" + $in + "\n"
   )
