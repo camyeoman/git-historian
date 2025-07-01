@@ -1,4 +1,4 @@
-use helpers.nu *
+use helpers *
 
 const JIRA_CODES = [
   AIQX

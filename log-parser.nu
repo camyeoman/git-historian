@@ -1,6 +1,6 @@
 use ticket-codes.nu *
 use projects.nu *
-use helpers.nu *
+use helpers *
 
 const FMT_TAG = {
   commit_hash: "%H"

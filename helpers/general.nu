@@ -220,3 +220,12 @@ export def get-author-email []: nothing -> string {
 export def get-current-project []: nothing -> string {
   ^git rev-parse --show-toplevel
 }
+
+export def is-dir []: string -> bool {
+  path type | $in == "dir"
+}
+
+export def is-git-repository []: string -> bool {
+  ($in | is-dir) and ($in | path join ".git" | is-dir)
+}
+

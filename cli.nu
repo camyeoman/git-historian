@@ -1,6 +1,6 @@
 use ticket-codes.nu *
 use projects.nu *
-use helpers.nu *
+use helpers *
 
 def tap-table [map?: closure] {
   $in
