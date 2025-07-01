@@ -1,5 +1,5 @@
 use ticket-codes.nu *
-use projects.nu *
+use metadata.nu *
 use helpers *
 
 def tap-table [map?: closure] {
@@ -469,6 +469,8 @@ def 'main logs' [
   --author (-a): string
   --projects-file (-p): string  # like --all, but specify path to file containing specific list of projects
 ] {
+  update-program # automatically retrieve latest updates
+
   let cache_path = mktemp -d
   let now = date now
   let initial_date = $now | start-of-week

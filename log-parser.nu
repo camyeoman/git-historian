@@ -1,5 +1,5 @@
 use ticket-codes.nu *
-use projects.nu *
+use metadata.nu *
 use helpers *
 
 const FMT_TAG = {
