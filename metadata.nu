@@ -54,7 +54,7 @@ def update-metadata [update: closure]: nothing -> record {
   | save-metadata
 }
 
-def get-saved-projects []: nothing -> list<string> {
+export def get-saved-projects []: nothing -> list<string> {
   get-metadata
   | get saved_projects
 }
