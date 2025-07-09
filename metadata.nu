@@ -68,31 +68,36 @@ def update-saved-projects [update: closure]: nothing -> list<string> {
 
 const PULL_INTERVAL = 1wk
 
-export def update-program [] {
+export def update-program []: nothing -> bool {
   let meta = get-metadata
   if (
     ($meta.last_pull | is-datetime)
     and (date now) - $meta.last_pull < $PULL_INTERVAL
-  ) { return null } # exit if already checked for updates
+  ) { return false } # exit if already checked for updates
 
   cd $env.FILE_PWD # cd into correct directory
+
   clear -k; print (
     $"(ansi purple)Updating(ansi reset) program automatically..."
     | fill --width (term size).columns -a c
     | "\n" + $in + "\n"
   )
 
-  print (git pull)
-  # try { git pull | ignore } catch { |error| }
-  update-metadata { upsert last_pull (date now) } | get last_pull
+  # pull the latest changes, storing the date of the last pull
+  let pulled = try {
+    git pull | ignore
+    update-metadata { upsert last_pull (date now) }
+    true
+  } catch { |error| false }
 
   print (
-    $"(ansi green)Finished(ansi reset) updating! program automatically..."
+    $"(ansi green)Finished(ansi reset) updating program automatically!"
     | fill --width (term size).columns -a c
-    | "\n" + $in + "\n"
+    | $in + "\n"
   )
 
-  sleep 500ms; clear -k
+  sleep 2sec; clear -k
+  return $pulled
 }
 
 # implement methods to handle saved project paths
