@@ -448,6 +448,13 @@ def 'main projects delete' [] {
   display-saved-projects
 }
 
+# Runs git fetch on all saved projects
+def 'main projects fetch' [] {
+  get-saved-projects
+  | par-each { cd $in; git fetch }
+  return null
+}
+
 # Gets the worklogs for a specified date
 @example "get worklogs for today" { nu ~/.scripts/worklog/cli.nu logs-for date }
 @example "get worklogs for 12th of current month and year" { nu ~/.scripts/worklog/cli.nu logs-for date 12 }
