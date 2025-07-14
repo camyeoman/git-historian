@@ -12,8 +12,13 @@ def is-valid-saved-project-path []: any -> bool {
   ($in | is-string) and ($in | is-git-repository)
 }
 
+export def get-local-logs-repo [] {
+  $env.FILE_PWD | path join .local-logs
+}
+
 def format-saved-projects []: any -> list<string> {
   default []
+  | append (get-local-logs-repo)
   | where { is-valid-saved-project-path }
   | sort
   | uniq
@@ -64,11 +69,25 @@ def update-saved-projects [update: closure]: nothing -> list<string> {
   | get saved_projects
 }
 
+# implement setup methods for the program
+
+export def program-setup [] {
+  # create local subrepo to allow local change tracking
+  let local_logs_path = get-local-logs-repo
+  if (not ($local_logs_path | path exists)) {
+    mkdir $local_logs_path
+    cd $local_logs_path
+    git init | ignore
+  }
+}
+
 # implement methods to pull updates from the git repository
 
 const PULL_INTERVAL = 1wk
 
 export def update-program []: nothing -> bool {
+  program-setup # execute any required setup for the program
+
   let meta = get-metadata
   if (
     ($meta.last_pull | is-datetime)

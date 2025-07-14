@@ -706,3 +706,18 @@ def 'main logs-for date-range' [
       --split-week-on-month (not $no_split_week_on_month)
   ) | print $in
 }
+
+# Gets the worklogs for the specified specified date range
+def 'main log-for' [
+  msg?: string,
+] {
+  let ticket = try { git branch --show-current } catch { '' }
+    | split row '/'
+    | last 1
+    | where { is-not-empty }
+    | get 0?
+    | if-then {is-not-empty} { $in + ": ..."}
+
+  cd (get-local-logs-repo)
+  git commit --allow-empty -m ($msg | default $ticket)
+}
